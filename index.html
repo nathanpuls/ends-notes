@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ends.at</title>
+
+  <!-- Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    body {
+      font-family: "Inter", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+
+      max-width: 720px;
+      margin: 40px auto;
+      padding: 0 16px;
+      color: #111827;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 220px;
+      padding: 12px;
+      font-size: 15px;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 14px;
+      border: 1px solid #E5E7EB;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    #out {
+      margin-top: 16px;
+    }
+
+    .preview {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #E5E7EB;
+    }
+
+    a {
+      color: #2563EB;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    pre {
+      background: #F3F4F6;
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    blockquote {
+      border-left: 3px solid #E5E7EB;
+      padding-left: 12px;
+      margin-left: 0;
+      color: #374151;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      border: 1px solid #E5E7EB;
+      padding: 6px 8px;
+      text-align: left;
+    }
+
+    th {
+      background: transparent;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>ends.at</h1>
+
+  <textarea id="input" placeholder="Write something..."></textarea>
+  <br />
+  <button onclick="save()">Save</button>
+
+  <div id="out"></div>
+  <div id="preview" class="preview"></div>
+
+  <script>
+    async function save() {
+      const content = document.getElementById("input").value;
+
+      const res = await fetch("/api/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ content })
+      });
+
+      const data = await res.json();
+
+      const url = `/n/${data.id}`;
+
+      document.getElementById("out").innerHTML =
+        `<p><a href="${url}" target="_blank">${url}</a></p>`;
+
+      document.getElementById("preview").innerHTML =
+        marked.parse(content);
+    }
+  </script>
+</body>
+</html>
