@@ -334,7 +334,6 @@
         const menuButton = document.getElementById("menu-button");
         const menuPanel = document.getElementById("action-menu");
         const menuItems = Array.from(document.querySelectorAll(".menu-item"));
-        const publishedPathMatch = window.location.pathname.match(/^\/p\/([A-Za-z0-9_-]+)$/);
 
         function render() {
             preview.innerHTML = marked.parse(input.value || "");
@@ -349,6 +348,15 @@
             if (!document.body.classList.contains("publish-mode")) {
                 localStorage.setItem("md-draft", input.value);
             }
+        }
+
+        function getPublishedIdFromPath() {
+            const match = window.location.pathname.match(/^\/p\/([A-Za-z0-9_-]+)$/);
+            return match ? match[1] : null;
+        }
+
+        function getEditorPath() {
+            return window.location.protocol === "file:" ? window.location.pathname : "/";
         }
 
         async function publishCurrentMarkdown() {
@@ -394,7 +402,12 @@
 
         function createNewPage() {
             localStorage.removeItem("md-draft");
-            window.location.href = "/";
+            input.value = "";
+            document.body.classList.remove("publish-mode");
+            window.history.replaceState({}, "", getEditorPath());
+            render();
+            syncMenuState();
+            input.focus();
         }
 
         async function copyMarkdown() {
@@ -455,7 +468,7 @@
         }
 
         async function checkUrl() {
-            const publishedId = publishedPathMatch ? publishedPathMatch[1] : null;
+            const publishedId = getPublishedIdFromPath();
 
             if (publishedId) {
                 try {
@@ -515,6 +528,7 @@
             }
         });
         window.onload = checkUrl;
+        window.onpopstate = checkUrl;
     </script>
 </body>
 
