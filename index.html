@@ -194,23 +194,77 @@
             margin: 36px 0;
         }
 
-        .action-btn {
+        .menu-wrap {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 1000;
+        }
+
+        .menu-btn {
             background: #ffffff;
             color: #111827;
-            border: 1px solid #111827;
-            padding: 8px 16px;
-            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            border-radius: 999px;
             cursor: pointer;
             font-weight: 600;
             font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 18px rgba(17, 24, 39, 0.08);
         }
 
-        .action-btn:hover {
+        .menu-btn:hover {
             background: #f9fafb;
+        }
+
+        .menu-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .menu-panel {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 200px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 18px 45px rgba(17, 24, 39, 0.14);
+            padding: 8px;
+            display: none;
+        }
+
+        .menu-panel.open {
+            display: block;
+        }
+
+        .menu-item {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: #111827;
+            text-align: left;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background: #f9fafb;
+        }
+
+        .menu-item[disabled] {
+            color: #9ca3af;
+            cursor: default;
+        }
+
+        .menu-item[disabled]:hover {
+            background: transparent;
         }
 
         body.publish-mode .pane-editor {
@@ -241,7 +295,22 @@
 </head>
 
 <body>
-    <button id="main-action" class="action-btn" onclick="handleAction()">Publish</button>
+    <div class="menu-wrap">
+        <button id="menu-button" class="menu-btn" type="button" aria-expanded="false" aria-controls="action-menu">
+            Menu
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path d="M5.5 7.5 10 12l4.5-4.5" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+        </button>
+
+        <div id="action-menu" class="menu-panel" role="menu">
+            <button class="menu-item" type="button" role="menuitem" data-action="new">Create New Page</button>
+            <button class="menu-item" type="button" role="menuitem" data-action="copy-markdown">Copy Markdown</button>
+            <button class="menu-item" type="button" role="menuitem" data-action="copy-text">Copy Text</button>
+            <button class="menu-item" type="button" role="menuitem" data-action="publish">Publish</button>
+            <button class="menu-item" type="button" role="menuitem" data-action="edit">Edit</button>
+        </div>
+    </div>
 
     <div id="shell" class="app-shell">
         <section class="pane pane-editor">
@@ -262,7 +331,9 @@
         const shell = document.getElementById("shell");
         const input = document.getElementById("markdown-input");
         const preview = document.getElementById("preview");
-        const btn = document.getElementById("main-action");
+        const menuButton = document.getElementById("menu-button");
+        const menuPanel = document.getElementById("action-menu");
+        const menuItems = Array.from(document.querySelectorAll(".menu-item"));
         const publishedPathMatch = window.location.pathname.match(/^\/p\/([A-Za-z0-9_-]+)$/);
 
         function render() {
@@ -280,21 +351,14 @@
             }
         }
 
-        async function handleAction() {
-            if (document.body.classList.contains("publish-mode")) {
-                localStorage.setItem("md-draft", input.value);
-                window.location.href = "/";
-                return;
-            }
-
+        async function publishCurrentMarkdown() {
             const markdown = input.value.trim();
 
             if (!markdown) {
                 return;
             }
 
-            btn.disabled = true;
-            btn.innerText = "Publishing...";
+            setMenuBusy(true, "Publishing...");
 
             try {
                 const response = await fetch("/api/publish", {
@@ -318,9 +382,75 @@
                 window.location.href = data.url;
             } catch (error) {
                 console.error(error);
-                btn.disabled = false;
-                btn.innerText = "Publish";
+                setMenuBusy(false);
                 alert("Could not publish this Markdown.");
+            }
+        }
+
+        function startEditingPublishedPage() {
+            localStorage.setItem("md-draft", input.value);
+            window.location.href = "/";
+        }
+
+        function createNewPage() {
+            localStorage.removeItem("md-draft");
+            window.location.href = "/";
+        }
+
+        async function copyMarkdown() {
+            await navigator.clipboard.writeText(input.value);
+        }
+
+        async function copyText() {
+            await navigator.clipboard.writeText(preview.innerText || "");
+        }
+
+        function setMenuBusy(isBusy, label = "Menu") {
+            menuButton.disabled = isBusy;
+            menuButton.innerHTML = isBusy
+                ? `${label}`
+                : `Menu
+            <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path d="M5.5 7.5 10 12l4.5-4.5" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>`;
+        }
+
+        function setMenuOpen(isOpen) {
+            menuPanel.classList.toggle("open", isOpen);
+            menuButton.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        }
+
+        function syncMenuState() {
+            const isPublishMode = document.body.classList.contains("publish-mode");
+            const editItem = menuItems.find((item) => item.dataset.action === "edit");
+            editItem.disabled = !isPublishMode;
+        }
+
+        async function handleMenuAction(action) {
+            setMenuOpen(false);
+
+            if (action === "new") {
+                createNewPage();
+                return;
+            }
+
+            if (action === "copy-markdown") {
+                await copyMarkdown();
+                return;
+            }
+
+            if (action === "copy-text") {
+                await copyText();
+                return;
+            }
+
+            if (action === "publish") {
+                await publishCurrentMarkdown();
+                return;
+            }
+
+            if (action === "edit" && document.body.classList.contains("publish-mode")) {
+                startEditingPublishedPage();
             }
         }
 
@@ -338,18 +468,14 @@
                     const data = await response.json();
                     input.value = data.markdown || "";
                     document.body.classList.add("publish-mode");
-                    btn.innerText = "Edit";
                     render();
                 } catch (error) {
                     console.error(error);
                     preview.innerHTML = "<p class='preview-empty'>This published Markdown could not be loaded.</p>";
                     document.body.classList.add("publish-mode");
-                    btn.innerText = "Edit";
                 }
             } else {
                 document.body.classList.remove("publish-mode");
-                btn.innerText = "Publish";
-                btn.disabled = false;
 
                 const draft = localStorage.getItem("md-draft");
 
@@ -360,10 +486,34 @@
                 render();
             }
 
+            setMenuBusy(false);
+            syncMenuState();
             shell.classList.add("ready");
         }
 
         input.addEventListener("input", render);
+        menuButton.addEventListener("click", () => {
+            setMenuOpen(!menuPanel.classList.contains("open"));
+        });
+        menuItems.forEach((item) => {
+            item.addEventListener("click", async () => {
+                if (item.disabled) {
+                    return;
+                }
+
+                await handleMenuAction(item.dataset.action);
+            });
+        });
+        document.addEventListener("click", (event) => {
+            if (!event.target.closest(".menu-wrap")) {
+                setMenuOpen(false);
+            }
+        });
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                setMenuOpen(false);
+            }
+        });
         window.onload = checkUrl;
     </script>
 </body>
