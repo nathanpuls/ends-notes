@@ -15,7 +15,20 @@ function makeId(length = 8) {
   return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join("");
 }
 
+async function hashMarkdown(markdown) {
+  const bytes = new TextEncoder().encode(markdown);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 async function storeDocument(env, markdown) {
+  const hash = await hashMarkdown(markdown);
+  const existingId = await env.ENDS_NOTES.get(`hash:${hash}`);
+
+  if (existingId) {
+    return existingId;
+  }
+
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const id = makeId();
     const key = `md:${id}`;
@@ -25,9 +38,11 @@ async function storeDocument(env, markdown) {
       const payload = JSON.stringify({
         markdown,
         createdAt: new Date().toISOString(),
+        hash,
       });
 
       await env.ENDS_NOTES.put(key, payload);
+      await env.ENDS_NOTES.put(`hash:${hash}`, id);
       return id;
     }
   }
