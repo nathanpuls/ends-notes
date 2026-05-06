@@ -2,6 +2,10 @@ name = "ends-notes"
 main = "./worker.js"
 compatibility_date = "2026-05-06"
 
+routes = [
+  { pattern = "ends.at/*", zone_name = "ends.at" }
+]
+
 [assets]
 directory = "./"
 binding = "ASSETS"
