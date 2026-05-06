@@ -1,326 +1,371 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ends.at</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ends.at</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism-themes/1.9.0/prism-one-light.min.css" rel="stylesheet" />
 
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism-themes/1.9.0/prism-one-light.min.css" rel="stylesheet" />
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-  <style>
-    * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: #ffffff;
+            color: #111827;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
 
-    body {
-      margin: 0;
-      background: #ffffff;
-      color: #111827;
-      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-    }
+        .app-shell {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 100vh;
+            visibility: hidden;
+        }
 
-    .app-shell {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      min-height: 100vh;
-      visibility: hidden;
-    }
+        .app-shell.ready {
+            visibility: visible;
+        }
 
-    .app-shell.ready {
-      visibility: visible;
-    }
+        .pane {
+            min-width: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
 
-    .pane {
-      min-width: 0;
-      height: 100vh;
-      overflow-y: auto;
-    }
+        .pane-editor {
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .pane-editor {
-      border-right: 1px solid #e5e7eb;
-      display: flex;
-      flex-direction: column;
-    }
+        #markdown-input {
+            width: 100%;
+            height: 100vh;
+            padding: 48px 40px;
+            border: none;
+            resize: none;
+            outline: none;
+            background: transparent;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #111827;
+        }
 
-    #markdown-input {
-      width: 100%;
-      height: 100vh;
-      padding: 48px 40px;
-      border: none;
-      resize: none;
-      outline: none;
-      background: transparent;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 14px;
-      line-height: 1.6;
-      color: #111827;
-    }
+        .preview-content {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 48px 20px 80px;
+            font-size: 16px;
+            line-height: 1.72;
+        }
 
-    .preview-content {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 48px 20px 80px;
-      font-size: 16px;
-      line-height: 1.72;
-    }
+        .preview-content h1 {
+            font-size: 32px;
+            margin: 0 0 28px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
 
-    .preview-content h1 {
-      font-size: 32px;
-      margin: 0 0 28px;
-      font-weight: 700;
-      line-height: 1.2;
-    }
+        .preview-content h2 {
+            font-size: 24px;
+            margin: 52px 0 18px;
+            font-weight: 650;
+            line-height: 1.25;
+        }
 
-    .preview-content h2 {
-      font-size: 24px;
-      margin: 52px 0 18px;
-      font-weight: 650;
-      line-height: 1.25;
-    }
+        .preview-content h3 {
+            font-size: 20px;
+            margin: 36px 0 14px;
+            font-weight: 650;
+            line-height: 1.3;
+        }
 
-    .preview-content h3 {
-      font-size: 20px;
-      margin: 36px 0 14px;
-      font-weight: 650;
-      line-height: 1.3;
-    }
+        .preview-content p,
+        .preview-content li {
+            font-size: 17px;
+            margin: 0 0 16px;
+        }
 
-    .preview-content p,
-    .preview-content li {
-      font-size: 17px;
-      margin: 0 0 16px;
-    }
+        .preview-content ul,
+        .preview-content ol {
+            margin: 0 0 20px;
+            padding-left: 1.5rem;
+        }
 
-    .preview-content ul,
-    .preview-content ol {
-      margin: 0 0 20px;
-      padding-left: 1.5rem;
-    }
+        .preview-content a {
+            color: inherit;
+            text-decoration: underline;
+            text-decoration-color: #111827;
+            text-underline-offset: 4px;
+        }
 
-    .preview-content a {
-      color: inherit;
-      text-decoration: underline;
-      text-decoration-color: #111827;
-      text-underline-offset: 4px;
-    }
+        .preview-content blockquote {
+            margin: 24px 0;
+            padding: 0 0 0 16px;
+            border-left: 3px solid #e5e7eb;
+            color: #4b5563;
+        }
 
-    .preview-content blockquote {
-      margin: 24px 0;
-      padding: 0 0 0 16px;
-      border-left: 3px solid #e5e7eb;
-      color: #4b5563;
-    }
+        .preview-content blockquote p {
+            margin-bottom: 0;
+        }
 
-    .preview-content blockquote p {
-      margin-bottom: 0;
-    }
+        /* Inline code only */
+        .preview-content code:not(pre code) {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.92em;
+            background: #f3f4f6;
+            color: #111827;
+            border-radius: 5px;
+            padding: 0.2em 0.4em;
+        }
 
-    /* Inline code only */
-    .preview-content code:not(pre code) {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.92em;
-      background: #f3f4f6;
-      color: #111827;
-      border-radius: 5px;
-      padding: 0.2em 0.4em;
-    }
+        /* Code block container */
+        .preview-content pre {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
 
-    /* Code block container */
-    .preview-content pre {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 1.25rem;
-      margin: 1.5rem 0;
-      overflow-x: auto;
-    }
+        /* Code inside blocks */
+        .preview-content pre code {
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            color: inherit;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
 
-    /* Code inside blocks */
-    .preview-content pre code {
-      background: transparent;
-      padding: 0;
-      border-radius: 0;
-      color: inherit;
-      font-size: 0.9em;
-      line-height: 1.6;
-    }
+        .preview-content table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 24px 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            font-size: 15px;
+        }
 
-    .preview-content table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      margin: 24px 0;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      overflow: hidden;
-      font-size: 15px;
-    }
+        .preview-content th,
+        .preview-content td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
 
-    .preview-content th,
-    .preview-content td {
-      padding: 10px 12px;
-      border-bottom: 1px solid #e5e7eb;
-      text-align: left;
-    }
+        .preview-content th {
+            background: #f9fafb;
+            font-weight: 650;
+        }
 
-    .preview-content th {
-      background: #f9fafb;
-      font-weight: 650;
-    }
+        .preview-content tr:last-child td {
+            border-bottom: none;
+        }
 
-    .preview-content tr:last-child td {
-      border-bottom: none;
-    }
+        .preview-content img {
+            border-radius: 12px;
+            margin: 20px 0;
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
 
-    .preview-content img {
-      border-radius: 12px;
-      margin: 20px 0;
-      max-width: 100%;
-      height: auto;
-      display: block;
-    }
+        .preview-content hr {
+            border: 0;
+            border-top: 1px solid #e5e7eb;
+            margin: 36px 0;
+        }
 
-    .preview-content hr {
-      border: 0;
-      border-top: 1px solid #e5e7eb;
-      margin: 36px 0;
-    }
+        .action-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: #ffffff;
+            color: #111827;
+            border: 1px solid #111827;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
 
-    .action-btn {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1000;
-      background: #ffffff;
-      color: #111827;
-      border: 1px solid #111827;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 13px;
-    }
+        .action-btn:hover {
+            background: #f9fafb;
+        }
 
-    .action-btn:hover {
-      background: #f9fafb;
-    }
+        body.publish-mode .pane-editor {
+            display: none;
+        }
 
-    body.publish-mode .pane-editor {
-      display: none;
-    }
+        body.publish-mode .app-shell {
+            grid-template-columns: 1fr;
+        }
 
-    body.publish-mode .app-shell {
-      grid-template-columns: 1fr;
-    }
+        @media (max-width: 900px) {
+            .app-shell {
+                grid-template-columns: 1fr;
+            }
 
-    @media (max-width: 900px) {
-      .app-shell {
-        grid-template-columns: 1fr;
-      }
+            .pane-editor {
+                border-right: none;
+                border-bottom: 1px solid #e5e7eb;
+                height: 50vh;
+            }
 
-      .pane-editor {
-        border-right: none;
-        border-bottom: 1px solid #e5e7eb;
-        height: 50vh;
-      }
-
-      #markdown-input {
-        height: 100%;
-        padding: 20px;
-      }
-    }
-  </style>
+            #markdown-input {
+                height: 100%;
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-  <button id="main-action" class="action-btn" onclick="handleAction()">Publish</button>
+    <button id="main-action" class="action-btn" onclick="handleAction()">Publish</button>
 
-  <div id="shell" class="app-shell">
-    <section class="pane pane-editor">
-      <textarea id="markdown-input" spellcheck="false" placeholder="Start typing..."></textarea>
-    </section>
+    <div id="shell" class="app-shell">
+        <section class="pane pane-editor">
+            <textarea id="markdown-input" spellcheck="false" placeholder="Start typing..."></textarea>
+        </section>
 
-    <section class="pane pane-preview">
-      <article id="preview" class="preview-content"></article>
-    </section>
-  </div>
+        <section class="pane pane-preview">
+            <article id="preview" class="preview-content"></article>
+        </section>
+    </div>
 
-  <script>
-    marked.setOptions({
-      gfm: true,
-      breaks: true
-    });
-
-    const shell = document.getElementById("shell");
-    const input = document.getElementById("markdown-input");
-    const preview = document.getElementById("preview");
-    const btn = document.getElementById("main-action");
-
-    function render() {
-      preview.innerHTML = marked.parse(input.value || "");
-
-      // Only highlight fenced code blocks, never inline code.
-      document
-        .querySelectorAll('.preview-content pre code[class*="language-"]')
-        .forEach((block) => {
-          Prism.highlightElement(block);
+    <script>
+        marked.setOptions({
+            gfm: true,
+            breaks: true
         });
 
-      if (!document.body.classList.contains("publish-mode")) {
-        localStorage.setItem("md-draft", input.value);
-      }
-    }
+        const shell = document.getElementById("shell");
+        const input = document.getElementById("markdown-input");
+        const preview = document.getElementById("preview");
+        const btn = document.getElementById("main-action");
+        const publishedPathMatch = window.location.pathname.match(/^\/p\/([A-Za-z0-9_-]+)$/);
 
-    function handleAction() {
-      if (document.body.classList.contains("publish-mode")) {
-        window.location.hash = "";
-        checkUrl();
-      } else {
-        const compressed = LZString.compressToEncodedURIComponent(input.value);
-        window.location.hash = compressed;
-        navigator.clipboard.writeText(window.location.href);
-        checkUrl();
-      }
-    }
+        function render() {
+            preview.innerHTML = marked.parse(input.value || "");
 
-    function checkUrl() {
-      const hash = window.location.hash.substring(1);
+            // Only highlight fenced code blocks, never inline code.
+            document
+                .querySelectorAll('.preview-content pre code[class*="language-"]')
+                .forEach((block) => {
+                    Prism.highlightElement(block);
+                });
 
-      if (hash) {
-        const data = LZString.decompressFromEncodedURIComponent(hash);
-
-        if (data) {
-          input.value = data;
-          document.body.classList.add("publish-mode");
-          btn.innerText = "Edit";
-          render();
-        }
-      } else {
-        document.body.classList.remove("publish-mode");
-        btn.innerText = "Publish";
-
-        const draft = localStorage.getItem("md-draft");
-
-        if (draft && !input.value) {
-          input.value = draft;
+            if (!document.body.classList.contains("publish-mode")) {
+                localStorage.setItem("md-draft", input.value);
+            }
         }
 
-        render();
-      }
+        async function handleAction() {
+            if (document.body.classList.contains("publish-mode")) {
+                localStorage.setItem("md-draft", input.value);
+                window.location.href = "/";
+                return;
+            }
 
-      shell.classList.add("ready");
-    }
+            const markdown = input.value.trim();
 
-    input.addEventListener("input", render);
-    window.onload = checkUrl;
-    window.onhashchange = checkUrl;
-  </script>
+            if (!markdown) {
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Publishing...";
+
+            try {
+                const response = await fetch("/api/publish", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ markdown })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Publish failed");
+                }
+
+                const data = await response.json();
+
+                if (navigator.clipboard?.writeText) {
+                    await navigator.clipboard.writeText(data.url);
+                }
+
+                window.location.href = data.url;
+            } catch (error) {
+                console.error(error);
+                btn.disabled = false;
+                btn.innerText = "Publish";
+                alert("Could not publish this Markdown.");
+            }
+        }
+
+        async function checkUrl() {
+            const publishedId = publishedPathMatch ? publishedPathMatch[1] : null;
+
+            if (publishedId) {
+                try {
+                    const response = await fetch(`/api/doc/${publishedId}`);
+
+                    if (!response.ok) {
+                        throw new Error("Document not found");
+                    }
+
+                    const data = await response.json();
+                    input.value = data.markdown || "";
+                    document.body.classList.add("publish-mode");
+                    btn.innerText = "Edit";
+                    render();
+                } catch (error) {
+                    console.error(error);
+                    preview.innerHTML = "<p class='preview-empty'>This published Markdown could not be loaded.</p>";
+                    document.body.classList.add("publish-mode");
+                    btn.innerText = "Edit";
+                }
+            } else {
+                document.body.classList.remove("publish-mode");
+                btn.innerText = "Publish";
+                btn.disabled = false;
+
+                const draft = localStorage.getItem("md-draft");
+
+                if (draft && !input.value) {
+                    input.value = draft;
+                }
+
+                render();
+            }
+
+            shell.classList.add("ready");
+        }
+
+        input.addEventListener("input", render);
+        window.onload = checkUrl;
+    </script>
 </body>
+
 </html>
