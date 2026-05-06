@@ -89,7 +89,7 @@ export default {
     }
 
     if (url.pathname.startsWith("/p/")) {
-      const assetUrl = new URL("/index.html", url.origin);
+      const assetUrl = new URL("/", url.origin);
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
 
