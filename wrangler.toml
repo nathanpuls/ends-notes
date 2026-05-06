@@ -9,5 +9,3 @@ run_worker_first = true
 
 [[kv_namespaces]]
 binding = "ENDS_NOTES"
-id = "REPLACE_WITH_PRODUCTION_KV_NAMESPACE_ID"
-preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"
