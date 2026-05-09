@@ -17,7 +17,8 @@
 </head>
 
 <body>
-    <button id="primary-action-button" class="primary-action-btn" type="button" aria-label="Publish"></button>
+    <button id="primary-action-button" class="primary-action-btn" type="button" aria-label="Publish" aria-describedby="primary-action-tooltip"></button>
+    <div id="primary-action-tooltip" class="action-tooltip" role="tooltip">Publish</div>
     <button id="scroll-top-button" class="scroll-top-btn" type="button" aria-label="Scroll to top">
         <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M4.75 12.25 10 7l5.25 5.25" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -33,9 +34,11 @@
                 <circle cx="10" cy="15.75" r="1.5" fill="currentColor"></circle>
             </svg>
         </button>
+        <div class="menu-tooltip" role="tooltip">Menu</div>
 
         <div id="action-menu" class="menu-panel" role="menu">
             <button class="menu-item" type="button" role="menuitem" data-action="new">New page</button>
+            <button class="menu-item" type="button" role="menuitem" data-action="duplicate">Duplicate</button>
             <button class="menu-item" type="button" role="menuitem" data-action="copy-link">Copy Link</button>
             <button class="menu-item" type="button" role="menuitem" data-action="copy-markdown">Copy Markdown</button>
             <button class="menu-item" type="button" role="menuitem" data-action="copy-text">Copy Text</button>

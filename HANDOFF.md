@@ -50,7 +50,8 @@ Important warning: `assets.directory = "./"` means the repo root is the asset di
 | `/` | Loads `index.html`, then the client fetches `/home.md` and renders it read-only. |
 | `/new` | Loads editor. Desktop shows editor plus preview; mobile shows editor only. |
 | `/new?fresh=1` | Starts a blank editor and clears the local draft. Used by the home page Start Writing link. |
-| `/p/:id` | Published Markdown page. Client fetches `/api/doc/:id` and renders read-only. |
+| `/p/:id` | Published Markdown page. Client fetches `/api/doc/:id` and renders read-only. Old links stay valid. |
+| `/p/:id/:slug` | Canonical published Markdown page. The slug is generated from the document title for readable sharing links. |
 | `/sheet` | Loads `sheet.md` and appends a Google Sheet URL-to-link converter UI. |
 | `/s/:sheetId` | Renders Markdown from a public Google Sheet, or a generated index if there are multiple Markdown rows. |
 | `/s/:sheetId/:slug` | Renders the Markdown row matching the slug from column B. |
@@ -83,6 +84,10 @@ Published Markdown is stored in KV:
 ```
 
 IDs are 8 random alphanumeric characters.
+
+Published URLs include a title-derived slug, such as `/p/Ft5vObHw/markdown-showcase`.
+The ID is still the lookup key, so `/p/Ft5vObHw` and `/p/Ft5vObHw/anything` both render the same document.
+For published pages, the Worker injects per-document `<title>`, description, Open Graph, and Twitter summary metadata into `index.html` before returning it, so message apps can show distinct link previews without waiting for client-side JavaScript.
 
 ## Google Sheets model
 

@@ -15,6 +15,132 @@ function makeId(length = 8) {
   return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join("");
 }
 
+function escapeHtml(value) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function stripMarkdown(value) {
+  return value
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/[*_~>#|`]/g, "")
+    .replace(/^-{3,}$/gm, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function truncateText(value, maxLength = 180) {
+  if (value.length <= maxLength) {
+    return value;
+  }
+
+  const truncated = value.slice(0, maxLength - 1);
+  const lastSpace = truncated.lastIndexOf(" ");
+
+  return `${truncated.slice(0, lastSpace > 80 ? lastSpace : truncated.length).trim()}…`;
+}
+
+function documentTitle(markdown) {
+  const heading = markdown.match(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/m);
+
+  if (heading) {
+    return stripMarkdown(heading[1]) || "ends.at";
+  }
+
+  const firstLine = markdown
+    .split(/\r?\n/)
+    .map((line) => stripMarkdown(line))
+    .find(Boolean);
+
+  return firstLine ? truncateText(firstLine, 80) : "ends.at";
+}
+
+function documentDescription(markdown, title) {
+  const paragraph = [];
+  const lines = markdown
+    .replace(/```[\s\S]*?```/g, " ")
+    .split(/\r?\n/);
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+
+    if (!line) {
+      if (paragraph.length) {
+        break;
+      }
+
+      continue;
+    }
+
+    if (/^#{1,6}\s+/.test(line) || /^-{3,}$/.test(line) || line.includes("|") || stripMarkdown(line) === title) {
+      continue;
+    }
+
+    paragraph.push(line);
+  }
+
+  const description = stripMarkdown(paragraph.join(" "));
+  return truncateText(description || "A clean Markdown page published with ends.at.");
+}
+
+function slugify(value, fallback = "page") {
+  const slug = value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 72)
+    .replace(/-+$/g, "");
+
+  return slug || fallback;
+}
+
+function documentMetadata(markdown) {
+  const title = documentTitle(markdown);
+
+  return {
+    title,
+    description: documentDescription(markdown, title),
+    slug: slugify(title),
+  };
+}
+
+function publishedPath(id, markdown) {
+  return `/p/${id}/${documentMetadata(markdown).slug}`;
+}
+
+function publishedIdFromPath(pathname) {
+  const match = pathname.match(/^\/p\/([A-Za-z0-9_-]+)(?:\/[^/]+)?$/);
+  return match ? match[1] : null;
+}
+
+function injectDocumentMetadata(html, url, metadata) {
+  const canonicalUrl = `${url.origin}${url.pathname}`;
+  const title = metadata.title === "ends.at" ? "ends.at" : `${metadata.title} - ends.at`;
+  const tags = [
+    `<title>${escapeHtml(title)}</title>`,
+    `<meta name="description" content="${escapeHtml(metadata.description)}">`,
+    `<meta property="og:title" content="${escapeHtml(metadata.title)}">`,
+    `<meta property="og:description" content="${escapeHtml(metadata.description)}">`,
+    `<meta property="og:type" content="article">`,
+    `<meta property="og:url" content="${escapeHtml(canonicalUrl)}">`,
+    `<meta name="twitter:card" content="summary">`,
+    `<meta name="twitter:title" content="${escapeHtml(metadata.title)}">`,
+    `<meta name="twitter:description" content="${escapeHtml(metadata.description)}">`,
+  ].join("\n    ");
+
+  return html
+    .replace(/<title>.*?<\/title>/, tags)
+    .replace("</head>", `    <link rel="canonical" href="${escapeHtml(canonicalUrl)}">\n</head>`);
+}
+
 function parseCsv(csv) {
   const rows = [];
   let row = [];
@@ -270,12 +396,12 @@ async function handleApi(request, env) {
     const id = await storeDocument(env, markdown);
     return json({
       id,
-      url: `${url.origin}/p/${id}`,
+      url: `${url.origin}${publishedPath(id, markdown)}`,
     });
   }
 
   if (request.method === "GET" && url.pathname.startsWith("/api/doc/")) {
-    const id = url.pathname.replace("/api/doc/", "").trim();
+    const id = url.pathname.replace("/api/doc/", "").split("/")[0].trim();
 
     if (!id) {
       return json({ error: "Document id is required" }, { status: 400 });
@@ -309,7 +435,28 @@ export default {
       return new Response("Not found", { status: 404 });
     }
 
-    if (url.pathname.startsWith("/p/") || url.pathname.startsWith("/s/") || url.pathname === "/new" || url.pathname === "/sheet" || url.pathname === "/about" || url.pathname === "/example") {
+    const publishedId = publishedIdFromPath(url.pathname);
+
+    if (publishedId) {
+      const assetUrl = new URL("/", url.origin);
+      const response = await env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+      const record = await env.ENDS_NOTES.get(`md:${publishedId}`, "json");
+
+      if (!record || typeof record.markdown !== "string") {
+        return response;
+      }
+
+      const html = await response.text();
+      const headers = new Headers(response.headers);
+      headers.delete("content-length");
+      headers.set("Content-Type", "text/html; charset=utf-8");
+
+      return new Response(injectDocumentMetadata(html, url, documentMetadata(record.markdown)), {
+        headers,
+      });
+    }
+
+    if (url.pathname.startsWith("/s/") || url.pathname === "/new" || url.pathname === "/sheet" || url.pathname === "/about" || url.pathname === "/example") {
       const assetUrl = new URL("/", url.origin);
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }

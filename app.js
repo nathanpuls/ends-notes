@@ -8,12 +8,14 @@ const input = document.getElementById("markdown-input");
 const preview = document.getElementById("preview");
 const previewPane = document.querySelector(".pane-preview");
 const primaryActionButton = document.getElementById("primary-action-button");
+const primaryActionTooltip = document.getElementById("primary-action-tooltip");
 const scrollTopButton = document.getElementById("scroll-top-button");
 const toast = document.getElementById("toast");
 const menuButton = document.getElementById("menu-button");
 const menuPanel = document.getElementById("action-menu");
 const colorOptions = document.getElementById("color-options");
 const menuItems = Array.from(document.querySelectorAll(".menu-item"));
+const duplicateMenuItem = document.querySelector('[data-action="duplicate"]');
 const DRAFT_KEY = "md-draft";
 const TOAST_KEY = "ends-toast";
 const COLOR_KEY = "ends-color";
@@ -61,7 +63,7 @@ function render() {
 }
 
 function getPublishedIdFromPath() {
-    const match = window.location.pathname.match(/^\/p\/([A-Za-z0-9_-]+)$/);
+    const match = window.location.pathname.match(/^\/p\/([A-Za-z0-9_-]+)(?:\/[^/]+)?$/);
     return match ? match[1] : null;
 }
 
@@ -243,7 +245,7 @@ async function publishCurrentMarkdown({ copyUrl = true } = {}) {
         }
 
         const data = await response.json();
-    const publishedPath = `/p/${data.id}`;
+        const publishedPath = new URL(data.url).pathname;
         const publishedUrl = new URL(publishedPath, window.location.href);
         const colorName = currentColorName();
 
@@ -388,9 +390,13 @@ function syncMenuState() {
     document.body.classList.toggle("home-mode", currentMode === "home");
     document.body.classList.toggle("sheet-mode", currentMode === "sheet" || currentMode === "sheet-page" || currentMode === "sheet-converter" || currentMode === "about");
     document.body.classList.toggle("editor-mode", currentMode === "new" || currentMode === "editing-published");
+    document.body.classList.toggle("published-page-mode", currentMode === "published");
 
     renderPrimaryActionIcon();
     primaryActionButton.disabled = publishInProgress || currentMode === "home" || currentMode === "sheet" || currentMode === "sheet-page" || currentMode === "sheet-converter" || currentMode === "about";
+    if (duplicateMenuItem) {
+        duplicateMenuItem.disabled = currentMode !== "published";
+    }
     syncScrollTopButton();
 }
 
@@ -411,6 +417,9 @@ function renderPrimaryActionIcon(overrideMode = null) {
 
     if (actionMode === "publishing") {
         primaryActionButton.setAttribute("aria-label", "Publishing");
+        if (primaryActionTooltip) {
+            primaryActionTooltip.textContent = "Publishing";
+        }
         primaryActionButton.innerHTML = `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <circle cx="10" cy="4.25" r="1.5" fill="currentColor"></circle>
             <circle cx="10" cy="10" r="1.5" fill="currentColor"></circle>
@@ -420,15 +429,23 @@ function renderPrimaryActionIcon(overrideMode = null) {
     }
 
     if (actionMode === "edit") {
-        primaryActionButton.setAttribute("aria-label", "Edit");
-        primaryActionButton.innerHTML = `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <path d="M4.5 14.75 5.15 11.5 12.1 4.55a2.05 2.05 0 0 1 2.9 2.9L8.05 14.4l-3.55.35Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
-            <path d="m10.9 5.75 3.35 3.35" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+        primaryActionButton.setAttribute("aria-label", "Duplicate");
+        if (primaryActionTooltip) {
+            primaryActionTooltip.textContent = "Duplicate";
+        }
+        primaryActionButton.innerHTML = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+            <path d="M14 2v6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M12 18v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            <path d="M9 15h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
         </svg>`;
         return;
     }
 
     primaryActionButton.setAttribute("aria-label", "Publish");
+    if (primaryActionTooltip) {
+        primaryActionTooltip.textContent = "Publish";
+    }
     primaryActionButton.innerHTML = `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
         <path d="M3.25 9.9 16.4 3.75a.25.25 0 0 1 .34.3l-3.9 12.25a.25.25 0 0 1-.44.08L9.25 12.5l-2.7 2.15a.25.25 0 0 1-.4-.2l.1-3.15-3.02-.95a.25.25 0 0 1 .02-.45Z" stroke="currentColor" stroke-width="1.45" stroke-linejoin="round"></path>
         <path d="m6.35 11.25 10.2-7.35" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"></path>
@@ -454,6 +471,11 @@ async function handleMenuAction(item) {
 
     if (action === "new") {
         createNewPage();
+        return;
+    }
+
+    if (action === "duplicate") {
+        startEditingPublishedPage();
         return;
     }
 
