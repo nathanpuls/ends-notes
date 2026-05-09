@@ -197,14 +197,21 @@
             line-height: 1.6;
         }
 
-        .preview-content table {
+        .table-scroll {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
             margin: 24px 0;
+            overflow-x: auto;
             border: 1px solid var(--accent-border);
             border-radius: 10px;
-            overflow: hidden;
+        }
+
+        .preview-content table {
+            width: 100%;
+            min-width: max-content;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 0;
+            border: 0;
             font-size: 15px;
         }
 
@@ -222,6 +229,16 @@
         .preview-content th {
             background: var(--accent-soft);
             font-weight: 650;
+        }
+
+        .preview-content th:first-child,
+        .preview-content td:first-child {
+            border-left: none;
+        }
+
+        .preview-content th:last-child,
+        .preview-content td:last-child {
+            border-right: none;
         }
 
         .preview-content tr:last-child td {
@@ -712,6 +729,17 @@
 
         function render() {
             preview.innerHTML = marked.parse(input.value || "");
+
+            preview.querySelectorAll("table").forEach((table) => {
+                if (table.parentElement?.classList.contains("table-scroll")) {
+                    return;
+                }
+
+                const wrapper = document.createElement("div");
+                wrapper.className = "table-scroll";
+                table.parentNode.insertBefore(wrapper, table);
+                wrapper.appendChild(table);
+            });
 
             // Only highlight fenced code blocks, never inline code.
             document
@@ -1291,6 +1319,20 @@
 
         input.addEventListener("input", render);
         input.addEventListener("blur", maybePublishOnMobileBlur);
+        preview.addEventListener("click", (event) => {
+            const link = event.target.closest("a");
+
+            if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                return;
+            }
+
+            const url = new URL(link.href, window.location.href);
+
+            if (url.origin === window.location.origin && url.pathname === "/new" && url.searchParams.get("fresh") === "1") {
+                event.preventDefault();
+                createNewPage();
+            }
+        });
         scrollTopButton.addEventListener("click", scrollToTop);
         window.addEventListener("scroll", syncScrollTopButton, { passive: true });
         previewPane.addEventListener("scroll", syncScrollTopButton, { passive: true });
