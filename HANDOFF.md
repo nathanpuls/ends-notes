@@ -41,6 +41,9 @@ Cloudflare Worker serves both APIs and static assets.
 
 Important warning: `assets.directory = "./"` means the repo root is the asset directory. Keep `.assetsignore` accurate so private/dev files are not uploaded as public assets.
 
+The production `ends.at/*` route is configured in Cloudflare, not in `wrangler.toml`.
+This keeps deploys from needing route-management API permissions.
+
 ## Routes
 
 ### Browser routes
@@ -192,13 +195,16 @@ node --check worker.js
 node --check app.js
 ```
 
-Deploy:
+Deploys run automatically from GitHub Actions on pushes to `main`:
+
+- Workflow: `.github/workflows/deploy.yml`
+- Required repo secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`
+
+Manual deploy, if needed:
 
 ```bash
-env -u CLOUDFLARE_API_TOKEN wrangler deploy
+wrangler deploy
 ```
-
-The local `CLOUDFLARE_API_TOKEN` environment variable did not have enough deploy permission. Unsetting it lets Wrangler use the OAuth login.
 
 After deploy, verify:
 

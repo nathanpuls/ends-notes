@@ -1,10 +1,8 @@
 name = "ends-notes"
 main = "./worker.js"
 compatibility_date = "2026-05-06"
-
-routes = [
-  { pattern = "ends.at/*", zone_name = "ends.at" }
-]
+workers_dev = false
+preview_urls = false
 
 [assets]
 directory = "./"
