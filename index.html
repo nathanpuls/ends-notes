@@ -19,6 +19,10 @@
         }
 
         body {
+            --accent: #6b7280;
+            --accent-soft: #f3f4f6;
+            --accent-border: #e5e7eb;
+            --link-color: #111827;
             margin: 0;
             background: #ffffff;
             color: #111827;
@@ -53,7 +57,7 @@
         #markdown-input {
             width: 100%;
             height: 100vh;
-            padding: 28px 40px 40px;
+            padding: 64px 40px 40px;
             border: none;
             resize: none;
             outline: none;
@@ -67,30 +71,47 @@
         .preview-content {
             max-width: 720px;
             margin: 0 auto;
-            padding: 28px 20px 80px;
+            padding: 64px 20px 80px;
             font-size: 16px;
             line-height: 1.72;
         }
 
+        .pane-preview .preview-content {
+            padding-right: 20px;
+        }
+
+        .preview-content h1,
+        .preview-content h2,
+        .preview-content h3,
+        .preview-content h4 {
+            margin: 36px 0 18px;
+            font-weight: 650;
+        }
+
         .preview-content h1 {
             font-size: 32px;
-            margin: 0 0 28px;
             font-weight: 700;
             line-height: 1.2;
+            overflow-wrap: anywhere;
         }
 
         .preview-content h2 {
             font-size: 24px;
-            margin: 52px 0 18px;
-            font-weight: 650;
             line-height: 1.25;
         }
 
         .preview-content h3 {
             font-size: 20px;
-            margin: 36px 0 14px;
-            font-weight: 650;
             line-height: 1.3;
+        }
+
+        .preview-content h4 {
+            font-size: 18px;
+            line-height: 1.35;
+        }
+
+        .preview-content > :first-child {
+            margin-top: 0;
         }
 
         .preview-content p,
@@ -106,16 +127,39 @@
         }
 
         .preview-content a {
-            color: inherit;
+            color: var(--link-color);
             text-decoration: underline;
-            text-decoration-color: #111827;
-            text-underline-offset: 4px;
+            text-decoration-color: var(--accent);
+            text-decoration-thickness: 1px;
+            text-underline-offset: 0.25em;
+        }
+
+        .preview-content .sheet-back-link {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 1000;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            margin: 0;
+            color: var(--accent);
+            text-decoration: none;
+            border-radius: 999px;
+        }
+
+        .preview-content .sheet-back-link:hover {
+            background: var(--accent-soft);
+            color: #111827;
+            text-decoration: none;
         }
 
         .preview-content blockquote {
             margin: 24px 0;
             padding: 0 0 0 16px;
-            border-left: 3px solid #e5e7eb;
+            border-left: 3px solid var(--accent-border);
             color: #4b5563;
         }
 
@@ -127,7 +171,7 @@
         .preview-content code:not(pre code) {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             font-size: 0.92em;
-            background: #f3f4f6;
+            background: var(--accent-soft);
             color: #111827;
             border-radius: 5px;
             padding: 0.2em 0.4em;
@@ -136,7 +180,7 @@
         /* Code block container */
         .preview-content pre {
             background: #f9fafb;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--accent-border);
             border-radius: 8px;
             padding: 1.25rem;
             margin: 1.5rem 0;
@@ -158,10 +202,14 @@
             border-collapse: separate;
             border-spacing: 0;
             margin: 24px 0;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--accent-border);
             border-radius: 10px;
             overflow: hidden;
             font-size: 15px;
+        }
+
+        .preview-content table code {
+            word-break: break-word;
         }
 
         .preview-content th,
@@ -172,7 +220,7 @@
         }
 
         .preview-content th {
-            background: #f9fafb;
+            background: var(--accent-soft);
             font-weight: 650;
         }
 
@@ -190,8 +238,143 @@
 
         .preview-content hr {
             border: 0;
-            border-top: 1px solid #e5e7eb;
+            border-top: 1px solid var(--accent-border);
             margin: 36px 0;
+        }
+
+        .sheet-converter {
+            margin: 28px 0;
+            padding: 16px;
+            border: 1px solid var(--accent-border);
+            border-radius: 8px;
+            background: var(--accent-soft);
+        }
+
+        .sheet-converter label {
+            display: block;
+            margin: 0 0 8px;
+            font-size: 14px;
+            font-weight: 650;
+        }
+
+        .sheet-converter input {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font: inherit;
+            color: #111827;
+            background: #ffffff;
+        }
+
+        .sheet-converter input:focus {
+            outline: 2px solid #111827;
+            outline-offset: 2px;
+        }
+
+        .sheet-converter-result {
+            margin-top: 12px;
+            font-size: 15px;
+        }
+
+        .sheet-converter-result a {
+            overflow-wrap: anywhere;
+        }
+
+        .sheet-converter-error {
+            color: #111827;
+        }
+
+        .primary-action-btn {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            z-index: 1000;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 999px;
+            padding: 0;
+            background: transparent;
+            color: #6b7280;
+            cursor: pointer;
+            display: none;
+        }
+
+        .primary-action-btn:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .primary-action-btn:disabled {
+            background: transparent;
+            color: #9ca3af;
+            cursor: default;
+        }
+
+        .primary-action-btn:focus-visible {
+            outline: 2px solid #111827;
+            outline-offset: 2px;
+        }
+
+        body.editor-mode .primary-action-btn,
+        body.publish-mode .primary-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body.sheet-mode .primary-action-btn {
+            display: none;
+        }
+
+        .primary-action-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .scroll-top-btn {
+            position: fixed;
+            left: 50%;
+            bottom: 18px;
+            z-index: 1000;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 999px;
+            padding: 0;
+            background: transparent;
+            color: #6b7280;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, 8px);
+            transition: opacity 160ms ease, transform 160ms ease, background 160ms ease, color 160ms ease;
+        }
+
+        .scroll-top-btn.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, 0);
+        }
+
+        .scroll-top-btn:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .scroll-top-btn:focus-visible {
+            outline: 2px solid #111827;
+            outline-offset: 2px;
+        }
+
+        .scroll-top-btn svg {
+            width: 18px;
+            height: 18px;
         }
 
         .menu-wrap {
@@ -202,22 +385,27 @@
         }
 
         .menu-btn {
-            background: #ffffff;
-            color: #111827;
-            border: 1px solid #d1d5db;
-            width: 38px;
-            height: 38px;
+            background: transparent;
+            color: #6b7280;
+            border: none;
+            width: 44px;
+            height: 44px;
             padding: 0;
             border-radius: 999px;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 18px rgba(17, 24, 39, 0.08);
         }
 
         .menu-btn:hover {
-            background: #f9fafb;
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .menu-btn:focus-visible {
+            outline: 2px solid #111827;
+            outline-offset: 2px;
         }
 
         .menu-btn svg {
@@ -227,7 +415,7 @@
 
         .menu-panel {
             position: absolute;
-            top: calc(100% + 10px);
+            top: 0;
             right: 0;
             width: 200px;
             background: #ffffff;
@@ -242,13 +430,38 @@
             display: block;
         }
 
+        .toast {
+            position: fixed;
+            right: 16px;
+            bottom: 68px;
+            z-index: 1100;
+            max-width: min(280px, calc(100vw - 32px));
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.96);
+            color: #4b5563;
+            font-size: 14px;
+            box-shadow: 0 12px 32px rgba(17, 24, 39, 0.12);
+            opacity: 0;
+            transform: translateY(6px);
+            pointer-events: none;
+            transition: opacity 160ms ease, transform 160ms ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         .menu-item {
             width: 100%;
             border: none;
             background: transparent;
             color: #111827;
             text-align: left;
-            padding: 10px 12px;
+            min-height: 44px;
+            padding: 12px;
             border-radius: 8px;
             font-size: 14px;
             cursor: pointer;
@@ -256,6 +469,67 @@
 
         .menu-item:hover {
             background: #f9fafb;
+        }
+
+        .menu-item:focus-visible {
+            outline: none;
+            background: #f3f4f6;
+        }
+
+        .color-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .color-toggle::after {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-right: 1.5px solid currentColor;
+            border-bottom: 1.5px solid currentColor;
+            opacity: 0.55;
+            transform: rotate(45deg) translateY(-2px);
+            transform-origin: center;
+        }
+
+        .color-toggle[aria-expanded="true"]::after {
+            transform: rotate(225deg) translate(-1px, -1px);
+        }
+
+        .color-options {
+            display: none;
+            margin: 2px 0 6px 12px;
+            padding: 4px 0 4px 10px;
+            border-left: 1px solid var(--accent-border);
+        }
+
+        .color-options.open {
+            display: block;
+        }
+
+        .color-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 40px;
+            padding: 10px 12px;
+            color: #374151;
+        }
+
+        .color-swatch {
+            width: 14px;
+            height: 14px;
+            border: 1px solid var(--accent-border);
+            border-radius: 999px;
+            background: var(--swatch);
+            flex: 0 0 auto;
+        }
+
+        .color-option[aria-current="true"] {
+            background: var(--accent-soft);
+            color: #111827;
         }
 
         .menu-item[disabled] {
@@ -276,14 +550,35 @@
         }
 
         @media (max-width: 900px) {
+            .preview-content .sheet-back-link {
+                top: max(16px, env(safe-area-inset-top));
+                left: max(8px, env(safe-area-inset-left));
+                width: 48px;
+                height: 48px;
+            }
+
+            .primary-action-btn {
+                top: auto;
+                right: max(16px, env(safe-area-inset-right));
+                bottom: max(16px, env(safe-area-inset-bottom));
+                width: 48px;
+                height: 48px;
+            }
+
+            .scroll-top-btn {
+                bottom: max(16px, env(safe-area-inset-bottom));
+                width: 48px;
+                height: 48px;
+            }
+
             .app-shell {
                 grid-template-columns: 1fr;
             }
 
             .pane-editor {
                 border-right: none;
-                border-bottom: 1px solid #e5e7eb;
-                height: 50vh;
+                border-bottom: none;
+                height: 100vh;
             }
 
             #markdown-input {
@@ -291,14 +586,58 @@
                 padding: 20px;
             }
 
+            .pane-preview {
+                display: none;
+            }
+
+            body.publish-mode .pane-preview {
+                display: block;
+            }
+
+            body.publish-mode .pane-editor {
+                display: none;
+            }
+
             .preview-content {
                 padding-top: 20px;
+                padding-right: 20px;
+                padding-bottom: 104px;
+            }
+
+            .menu-wrap {
+                top: max(8px, env(safe-area-inset-top));
+                right: max(16px, env(safe-area-inset-right));
+                bottom: auto;
+            }
+
+            .menu-btn {
+                width: 48px;
+                height: 40px;
+            }
+
+            .menu-panel {
+                top: calc(100% + 10px);
+                bottom: auto;
+                width: min(240px, calc(100vw - 32px));
+            }
+
+            .toast {
+                right: max(16px, env(safe-area-inset-right));
+                bottom: calc(max(16px, env(safe-area-inset-bottom)) + 60px);
             }
         }
     </style>
 </head>
 
 <body>
+    <button id="primary-action-button" class="primary-action-btn" type="button" aria-label="Publish"></button>
+    <button id="scroll-top-button" class="scroll-top-btn" type="button" aria-label="Scroll to top">
+        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M4.75 12.25 10 7l5.25 5.25" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+    </button>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
     <div class="menu-wrap">
         <button id="menu-button" class="menu-btn" type="button" aria-expanded="false" aria-controls="action-menu" aria-label="Menu">
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -309,17 +648,28 @@
         </button>
 
         <div id="action-menu" class="menu-panel" role="menu">
-            <button class="menu-item" type="button" role="menuitem" data-action="new">Create New Page</button>
+            <button class="menu-item" type="button" role="menuitem" data-action="new">New page</button>
+            <button class="menu-item" type="button" role="menuitem" data-action="copy-link">Copy Link</button>
             <button class="menu-item" type="button" role="menuitem" data-action="copy-markdown">Copy Markdown</button>
             <button class="menu-item" type="button" role="menuitem" data-action="copy-text">Copy Text</button>
-            <button class="menu-item" type="button" role="menuitem" data-action="publish">Publish</button>
-            <button class="menu-item" type="button" role="menuitem" data-action="edit">Edit</button>
+            <button class="menu-item color-toggle" type="button" role="menuitem" data-action="toggle-color" aria-expanded="false" aria-controls="color-options">Color</button>
+            <div id="color-options" class="color-options" role="group" aria-label="Color choices">
+                <button class="menu-item color-option" type="button" role="menuitem" data-action="set-color" data-color="slate"><span class="color-swatch" style="--swatch: #6b7280"></span>Slate</button>
+                <button class="menu-item color-option" type="button" role="menuitem" data-action="set-color" data-color="sage"><span class="color-swatch" style="--swatch: #6f9277"></span>Sage</button>
+                <button class="menu-item color-option" type="button" role="menuitem" data-action="set-color" data-color="rose"><span class="color-swatch" style="--swatch: #b77986"></span>Rose</button>
+                <button class="menu-item color-option" type="button" role="menuitem" data-action="set-color" data-color="sky"><span class="color-swatch" style="--swatch: #3f78a8"></span>Sky</button>
+                <button class="menu-item color-option" type="button" role="menuitem" data-action="set-color" data-color="lavender"><span class="color-swatch" style="--swatch: #7664a8"></span>Lavender</button>
+                <button class="menu-item color-option" type="button" role="menuitem" data-action="set-color" data-color="amber"><span class="color-swatch" style="--swatch: #a9803a"></span>Amber</button>
+            </div>
+            <button class="menu-item" type="button" role="menuitem" data-action="sheet">Google Sheet</button>
+            <button class="menu-item" type="button" role="menuitem" data-action="about">About</button>
+            <button class="menu-item" type="button" role="menuitem" data-action="home">Home</button>
         </div>
     </div>
 
     <div id="shell" class="app-shell">
         <section class="pane pane-editor">
-            <textarea id="markdown-input" spellcheck="false" placeholder="Start typing..."></textarea>
+            <textarea id="markdown-input" spellcheck="false" placeholder="# Title"></textarea>
         </section>
 
         <section class="pane pane-preview">
@@ -336,9 +686,29 @@
         const shell = document.getElementById("shell");
         const input = document.getElementById("markdown-input");
         const preview = document.getElementById("preview");
+        const previewPane = document.querySelector(".pane-preview");
+        const primaryActionButton = document.getElementById("primary-action-button");
+        const scrollTopButton = document.getElementById("scroll-top-button");
+        const toast = document.getElementById("toast");
         const menuButton = document.getElementById("menu-button");
         const menuPanel = document.getElementById("action-menu");
+        const colorOptions = document.getElementById("color-options");
         const menuItems = Array.from(document.querySelectorAll(".menu-item"));
+        const DRAFT_KEY = "md-draft";
+        const TOAST_KEY = "ends-toast";
+        const COLOR_KEY = "ends-color";
+        const COLOR_PRESETS = {
+            slate: { label: "Slate", accent: "#6b7280", link: "#111827", soft: "#f3f4f6", border: "#e5e7eb" },
+            sage: { label: "Sage", accent: "#6f9277", link: "#6f9277", soft: "#f1f7f2", border: "#d9eadc" },
+            rose: { label: "Rose", accent: "#b77986", link: "#b77986", soft: "#fff1f3", border: "#f1d4da" },
+            sky: { label: "Sky", accent: "#3f78a8", link: "#3f78a8", soft: "#eef7ff", border: "#d2e6f5" },
+            lavender: { label: "Lavender", accent: "#7664a8", link: "#7664a8", soft: "#f5f2ff", border: "#ded7f2" },
+            amber: { label: "Amber", accent: "#a9803a", link: "#a9803a", soft: "#fff8e8", border: "#eeddb8" },
+        };
+        let currentMode = "new";
+        let publishInProgress = false;
+        let suppressNextBlurPublish = false;
+        let toastTimer = null;
 
         function render() {
             preview.innerHTML = marked.parse(input.value || "");
@@ -350,8 +720,12 @@
                     Prism.highlightElement(block);
                 });
 
-            if (!document.body.classList.contains("publish-mode")) {
-                localStorage.setItem("md-draft", input.value);
+            if (currentMode === "new" || currentMode === "editing-published") {
+                if (input.value) {
+                    localStorage.setItem(DRAFT_KEY, input.value);
+                } else {
+                    localStorage.removeItem(DRAFT_KEY);
+                }
             }
         }
 
@@ -360,17 +734,168 @@
             return match ? match[1] : null;
         }
 
-        function getEditorPath() {
-            return window.location.protocol === "file:" ? window.location.pathname : "/";
+        function isEditRoute() {
+            return new URLSearchParams(window.location.search).get("edit") === "1";
         }
 
-        async function publishCurrentMarkdown() {
+        function getSheetPathParts() {
+            const match = window.location.pathname.match(/^\/s\/([A-Za-z0-9_-]+)(?:\/([^/]+))?$/);
+
+            if (!match) {
+                return null;
+            }
+
+            return {
+                id: match[1],
+                slug: match[2] || null
+            };
+        }
+
+        function goToSheetIndex() {
+            const sheetParts = getSheetPathParts();
+
+            if (!sheetParts?.slug) {
+                return false;
+            }
+
+            window.location.href = `/s/${sheetParts.id}`;
+            return true;
+        }
+
+        function getEditorPath() {
+            return window.location.protocol === "file:" ? window.location.pathname : "/new";
+        }
+
+        function currentColorName() {
+            const color = new URLSearchParams(window.location.search).get("color") || localStorage.getItem(COLOR_KEY) || "slate";
+            return COLOR_PRESETS[color] ? color : "slate";
+        }
+
+        function applyColor(colorName) {
+            const safeColorName = COLOR_PRESETS[colorName] ? colorName : "slate";
+            const preset = COLOR_PRESETS[safeColorName];
+            document.body.style.setProperty("--accent", preset.accent);
+            document.body.style.setProperty("--link-color", preset.link);
+            document.body.style.setProperty("--accent-soft", preset.soft);
+            document.body.style.setProperty("--accent-border", preset.border);
+            localStorage.setItem(COLOR_KEY, safeColorName);
+            syncColorMenuLabel(safeColorName);
+        }
+
+        function syncColorMenuLabel(colorName = currentColorName()) {
+            menuItems
+                .filter((item) => item.dataset.action === "set-color")
+                .forEach((item) => {
+                    item.setAttribute("aria-current", item.dataset.color === colorName ? "true" : "false");
+                });
+        }
+
+        function setColorParam(colorName) {
+            const url = new URL(window.location.href);
+
+            if (colorName === "slate") {
+                url.searchParams.delete("color");
+            } else {
+                url.searchParams.set("color", colorName);
+            }
+
+            window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+        }
+
+        function setColor(colorName) {
+            setColorParam(colorName);
+            applyColor(colorName);
+            showToast(`Color: ${COLOR_PRESETS[colorName].label}`);
+        }
+
+        function showReadOnlyMarkdown(markdown, mode) {
+            currentMode = mode;
+            input.value = markdown || "";
+            document.body.classList.add("publish-mode");
+            render();
+        }
+
+        function extractSheetId(value) {
+            const trimmed = value.trim();
+            const pathMatch = trimmed.match(/\/spreadsheets\/d\/([A-Za-z0-9_-]+)/);
+            const directMatch = trimmed.match(/^[A-Za-z0-9_-]{20,}$/);
+
+            if (pathMatch) {
+                return pathMatch[1];
+            }
+
+            if (directMatch) {
+                return directMatch[0];
+            }
+
+            return null;
+        }
+
+        function renderSheetConverter() {
+            const converter = document.createElement("section");
+            converter.className = "sheet-converter";
+            converter.innerHTML = `
+                <label for="sheet-url-input">Google Sheet URL or ID</label>
+                <input id="sheet-url-input" type="url" placeholder="https://docs.google.com/spreadsheets/d/..." autocomplete="off" />
+                <div id="sheet-converter-result" class="sheet-converter-result" aria-live="polite"></div>
+            `;
+
+            preview.appendChild(converter);
+
+            const sheetInput = document.getElementById("sheet-url-input");
+            const result = document.getElementById("sheet-converter-result");
+
+            function updateResult() {
+                const sheetId = extractSheetId(sheetInput.value);
+
+                if (!sheetId) {
+                    result.innerHTML = "<span class='sheet-converter-error'>Your ends.at link will appear here.</span>";
+                    return;
+                }
+
+                const sheetPath = `/s/${sheetId}`;
+                const sheetUrl = new URL(sheetPath, window.location.href).toString();
+                result.innerHTML = `<a href="${sheetPath}">${sheetUrl}</a>`;
+            }
+
+            sheetInput.addEventListener("input", updateResult);
+            updateResult();
+        }
+
+        function showEditableMarkdown(markdown, mode) {
+            currentMode = mode;
+            input.value = markdown || "";
+            document.body.classList.remove("publish-mode");
+            render();
+        }
+
+        function focusEditorOnDesktop() {
+            if (window.matchMedia("(min-width: 901px)").matches) {
+                requestAnimationFrame(() => input.focus());
+            }
+        }
+
+        function isMobileLayout() {
+            return window.matchMedia("(max-width: 900px)").matches;
+        }
+
+        function startBlankPage() {
+            localStorage.removeItem(DRAFT_KEY);
+            currentMode = "new";
+            window.history.replaceState({}, "", getEditorPath());
+            showEditableMarkdown("", "new");
+            syncMenuState();
+            input.focus();
+        }
+
+        async function publishCurrentMarkdown({ copyUrl = true } = {}) {
             const markdown = input.value.trim();
 
-            if (!markdown) {
+            if (!markdown || publishInProgress) {
                 return;
             }
 
+            publishInProgress = true;
             setMenuBusy(true, "Publishing...");
 
             try {
@@ -387,32 +912,79 @@
                 }
 
                 const data = await response.json();
+            const publishedPath = `/p/${data.id}`;
+                const publishedUrl = new URL(publishedPath, window.location.href);
+                const colorName = currentColorName();
 
-                if (navigator.clipboard?.writeText) {
-                    await navigator.clipboard.writeText(data.url);
+                if (colorName !== "slate") {
+                    publishedUrl.searchParams.set("color", colorName);
                 }
 
-                window.location.href = data.url;
+                if (copyUrl && navigator.clipboard?.writeText) {
+                    await navigator.clipboard.writeText(publishedUrl.toString());
+                    sessionStorage.setItem(TOAST_KEY, "Copied page link");
+                }
+
+                window.location.href = `${publishedUrl.pathname}${publishedUrl.search}`;
             } catch (error) {
                 console.error(error);
                 setMenuBusy(false);
+                publishInProgress = false;
                 alert("Could not publish this Markdown.");
             }
         }
 
-        function startEditingPublishedPage() {
-            localStorage.setItem("md-draft", input.value);
-            window.location.href = "/";
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add("show");
+            window.clearTimeout(toastTimer);
+            toastTimer = window.setTimeout(() => {
+                toast.classList.remove("show");
+            }, 1800);
         }
 
-        function createNewPage() {
-            localStorage.removeItem("md-draft");
-            input.value = "";
+        function showPendingToast() {
+            const message = sessionStorage.getItem(TOAST_KEY);
+
+            if (!message) {
+                return;
+            }
+
+            sessionStorage.removeItem(TOAST_KEY);
+            showToast(message);
+        }
+
+        function maybePublishOnMobileBlur() {
+            window.setTimeout(() => {
+                if (suppressNextBlurPublish) {
+                    suppressNextBlurPublish = false;
+                    return;
+                }
+
+                if (!isMobileLayout() || document.body.classList.contains("publish-mode")) {
+                    return;
+                }
+
+                if (currentMode !== "new" && currentMode !== "editing-published") {
+                    return;
+                }
+
+                publishCurrentMarkdown({ copyUrl: false });
+            }, 0);
+        }
+
+        function startEditingPublishedPage() {
+            currentMode = "editing-published";
+            localStorage.setItem(DRAFT_KEY, input.value);
             document.body.classList.remove("publish-mode");
-            window.history.replaceState({}, "", getEditorPath());
+            window.history.replaceState({}, "", `${window.location.pathname}?edit=1`);
             render();
             syncMenuState();
             input.focus();
+        }
+
+        function createNewPage() {
+            startBlankPage();
         }
 
         async function copyMarkdown() {
@@ -423,8 +995,15 @@
             await navigator.clipboard.writeText(preview.innerText || "");
         }
 
+        async function copyPageLink() {
+            await navigator.clipboard.writeText(window.location.href);
+            showToast("Copied page link");
+        }
+
         function setMenuBusy(isBusy) {
             menuButton.disabled = isBusy;
+            primaryActionButton.disabled = isBusy;
+            renderPrimaryActionIcon(isBusy ? "publishing" : null);
             menuButton.innerHTML = isBusy
                 ? `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
                 <circle cx="10" cy="4.25" r="1.5" fill="currentColor"></circle>
@@ -441,19 +1020,119 @@
         function setMenuOpen(isOpen) {
             menuPanel.classList.toggle("open", isOpen);
             menuButton.setAttribute("aria-expanded", isOpen ? "true" : "false");
+
+            if (!isOpen) {
+                colorOptions.classList.remove("open");
+                document.querySelector('[data-action="toggle-color"]').setAttribute("aria-expanded", "false");
+            }
+        }
+
+        function setColorOptionsOpen(isOpen) {
+            colorOptions.classList.toggle("open", isOpen);
+            document.querySelector('[data-action="toggle-color"]').setAttribute("aria-expanded", isOpen ? "true" : "false");
+        }
+
+        function enabledMenuItems() {
+            return menuItems.filter((item) => !item.disabled && item.offsetParent !== null);
+        }
+
+        function focusMenuItem(offset) {
+            const items = enabledMenuItems();
+
+            if (!items.length) {
+                return;
+            }
+
+            const currentIndex = items.indexOf(document.activeElement);
+            const nextIndex = currentIndex === -1
+                ? 0
+                : (currentIndex + offset + items.length) % items.length;
+
+            items[nextIndex].focus();
         }
 
         function syncMenuState() {
             const isPublishMode = document.body.classList.contains("publish-mode");
-            const editItem = menuItems.find((item) => item.dataset.action === "edit");
-            editItem.disabled = !isPublishMode;
+
+            document.body.classList.toggle("home-mode", currentMode === "home");
+            document.body.classList.toggle("sheet-mode", currentMode === "sheet" || currentMode === "sheet-page" || currentMode === "sheet-converter" || currentMode === "about");
+            document.body.classList.toggle("editor-mode", currentMode === "new" || currentMode === "editing-published");
+
+            renderPrimaryActionIcon();
+            primaryActionButton.disabled = publishInProgress || currentMode === "home" || currentMode === "sheet" || currentMode === "sheet-page" || currentMode === "sheet-converter" || currentMode === "about";
+            syncScrollTopButton();
         }
 
-        async function handleMenuAction(action) {
-            setMenuOpen(false);
+        function syncScrollTopButton() {
+            const canScrollToTop = document.body.classList.contains("publish-mode") && previewPane.scrollTop > 360;
+            scrollTopButton.classList.toggle("show", canScrollToTop);
+        }
+
+        function scrollToTop() {
+            previewPane.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
+
+        function renderPrimaryActionIcon(overrideMode = null) {
+            const actionMode = overrideMode || (currentMode === "published" ? "edit" : "publish");
+
+            if (actionMode === "publishing") {
+                primaryActionButton.setAttribute("aria-label", "Publishing");
+                primaryActionButton.innerHTML = `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <circle cx="10" cy="4.25" r="1.5" fill="currentColor"></circle>
+                    <circle cx="10" cy="10" r="1.5" fill="currentColor"></circle>
+                    <circle cx="10" cy="15.75" r="1.5" fill="currentColor"></circle>
+                </svg>`;
+                return;
+            }
+
+            if (actionMode === "edit") {
+                primaryActionButton.setAttribute("aria-label", "Edit");
+                primaryActionButton.innerHTML = `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4.5 14.75 5.15 11.5 12.1 4.55a2.05 2.05 0 0 1 2.9 2.9L8.05 14.4l-3.55.35Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
+                    <path d="m10.9 5.75 3.35 3.35" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+                </svg>`;
+                return;
+            }
+
+            primaryActionButton.setAttribute("aria-label", "Publish");
+            primaryActionButton.innerHTML = `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M3.25 9.9 16.4 3.75a.25.25 0 0 1 .34.3l-3.9 12.25a.25.25 0 0 1-.44.08L9.25 12.5l-2.7 2.15a.25.25 0 0 1-.4-.2l.1-3.15-3.02-.95a.25.25 0 0 1 .02-.45Z" stroke="currentColor" stroke-width="1.45" stroke-linejoin="round"></path>
+                <path d="m6.35 11.25 10.2-7.35" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"></path>
+            </svg>`;
+        }
+
+        async function handleMenuAction(item) {
+            const action = item.dataset.action;
+
+            if (action !== "toggle-color") {
+                setMenuOpen(false);
+            }
+
+            if (action === "home") {
+                window.location.href = "/";
+                return;
+            }
+
+            if (action === "about") {
+                window.location.href = "/about";
+                return;
+            }
 
             if (action === "new") {
                 createNewPage();
+                return;
+            }
+
+            if (action === "sheet") {
+                window.location.href = "/sheet";
+                return;
+            }
+
+            if (action === "copy-link") {
+                await copyPageLink();
                 return;
             }
 
@@ -467,18 +1146,29 @@
                 return;
             }
 
-            if (action === "publish") {
-                await publishCurrentMarkdown();
+            if (action === "toggle-color") {
+                const willOpen = !colorOptions.classList.contains("open");
+                setColorOptionsOpen(willOpen);
+
+                if (willOpen) {
+                    focusMenuItem(1);
+                }
+
                 return;
             }
 
-            if (action === "edit" && document.body.classList.contains("publish-mode")) {
-                startEditingPublishedPage();
+            if (action === "set-color") {
+                setColor(item.dataset.color);
+                setMenuOpen(false);
+                return;
             }
+
         }
 
         async function checkUrl() {
+            applyColor(currentColorName());
             const publishedId = getPublishedIdFromPath();
+            const sheetParts = getSheetPathParts();
 
             if (publishedId) {
                 try {
@@ -489,34 +1179,164 @@
                     }
 
                     const data = await response.json();
-                    input.value = data.markdown || "";
-                    document.body.classList.add("publish-mode");
-                    render();
+
+                    if (isEditRoute()) {
+                        showEditableMarkdown(data.markdown || "", "editing-published");
+                    } else {
+                        showReadOnlyMarkdown(data.markdown || "", "published");
+                    }
                 } catch (error) {
                     console.error(error);
                     preview.innerHTML = "<p class='preview-empty'>This published Markdown could not be loaded.</p>";
+                    currentMode = "published";
+                    document.body.classList.add("publish-mode");
+                }
+            } else if (sheetParts) {
+                try {
+                    const sheetUrl = `/api/sheet/${sheetParts.id}${sheetParts.slug ? `/${sheetParts.slug}` : ""}`;
+                    const response = await fetch(sheetUrl);
+
+                    if (!response.ok) {
+                        throw new Error("Sheet not found");
+                    }
+
+                    const data = await response.json();
+                    showReadOnlyMarkdown(data.markdown || "", sheetParts.slug ? "sheet-page" : "sheet");
+                } catch (error) {
+                    console.error(error);
+                    preview.innerHTML = "<p class='preview-empty'>This Google Sheet Markdown could not be loaded. Make sure the sheet is viewable by anyone with the link.</p>";
+                    currentMode = "sheet";
+                    document.body.classList.add("publish-mode");
+                }
+            } else if (window.location.pathname === "/" || window.location.pathname === "") {
+                try {
+                    const response = await fetch("/home.md");
+
+                    if (!response.ok) {
+                        throw new Error("Home page not found");
+                    }
+
+                    showReadOnlyMarkdown(await response.text(), "home");
+                } catch (error) {
+                    console.error(error);
+                    preview.innerHTML = "<p class='preview-empty'>The home page could not be loaded.</p>";
+                    currentMode = "home";
+                    document.body.classList.add("publish-mode");
+                }
+            } else if (window.location.pathname === "/sheet") {
+                try {
+                    const response = await fetch("/sheet.md");
+
+                    if (!response.ok) {
+                        throw new Error("Sheet page not found");
+                    }
+
+                    showReadOnlyMarkdown(await response.text(), "sheet-converter");
+                    renderSheetConverter();
+                } catch (error) {
+                    console.error(error);
+                    preview.innerHTML = "<p class='preview-empty'>The Google Sheet converter could not be loaded.</p>";
+                    currentMode = "sheet-converter";
+                    document.body.classList.add("publish-mode");
+                }
+            } else if (window.location.pathname === "/about") {
+                try {
+                    const response = await fetch("/about.md");
+
+                    if (!response.ok) {
+                        throw new Error("About page not found");
+                    }
+
+                    showReadOnlyMarkdown(await response.text(), "about");
+                } catch (error) {
+                    console.error(error);
+                    preview.innerHTML = "<p class='preview-empty'>The about page could not be loaded.</p>";
+                    currentMode = "about";
+                    document.body.classList.add("publish-mode");
+                }
+            } else if (window.location.pathname === "/example") {
+                try {
+                    const response = await fetch("/example.md");
+
+                    if (!response.ok) {
+                        throw new Error("Example page not found");
+                    }
+
+                    showReadOnlyMarkdown(await response.text(), "about");
+                } catch (error) {
+                    console.error(error);
+                    preview.innerHTML = "<p class='preview-empty'>The example page could not be loaded.</p>";
+                    currentMode = "about";
                     document.body.classList.add("publish-mode");
                 }
             } else {
-                document.body.classList.remove("publish-mode");
-
-                const draft = localStorage.getItem("md-draft");
-
-                if (draft && !input.value) {
-                    input.value = draft;
+                if (window.location.search === "?fresh=1") {
+                    startBlankPage();
+                } else {
+                    const draft = localStorage.getItem(DRAFT_KEY);
+                    showEditableMarkdown(draft || "", "new");
                 }
-
-                render();
             }
 
             setMenuBusy(false);
             syncMenuState();
             shell.classList.add("ready");
+
+            if (currentMode === "new" || currentMode === "editing-published") {
+                focusEditorOnDesktop();
+            }
+
+            showPendingToast();
         }
 
         input.addEventListener("input", render);
+        input.addEventListener("blur", maybePublishOnMobileBlur);
+        scrollTopButton.addEventListener("click", scrollToTop);
+        window.addEventListener("scroll", syncScrollTopButton, { passive: true });
+        previewPane.addEventListener("scroll", syncScrollTopButton, { passive: true });
+        primaryActionButton.addEventListener("click", () => {
+            if (currentMode === "published") {
+                startEditingPublishedPage();
+                return;
+            }
+
+            publishCurrentMarkdown();
+        });
+        document.querySelector(".menu-wrap").addEventListener("pointerdown", () => {
+            suppressNextBlurPublish = true;
+        });
         menuButton.addEventListener("click", () => {
-            setMenuOpen(!menuPanel.classList.contains("open"));
+            const willOpen = !menuPanel.classList.contains("open");
+            setMenuOpen(willOpen);
+
+            if (willOpen) {
+                focusMenuItem(1);
+            }
+        });
+        menuPanel.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowDown") {
+                event.preventDefault();
+                focusMenuItem(1);
+                return;
+            }
+
+            if (event.key === "ArrowUp") {
+                event.preventDefault();
+                focusMenuItem(-1);
+                return;
+            }
+
+            if (event.key === "Home") {
+                event.preventDefault();
+                enabledMenuItems()[0]?.focus();
+                return;
+            }
+
+            if (event.key === "End") {
+                event.preventDefault();
+                const items = enabledMenuItems();
+                items[items.length - 1]?.focus();
+            }
         });
         menuItems.forEach((item) => {
             item.addEventListener("click", async () => {
@@ -524,7 +1344,7 @@
                     return;
                 }
 
-                await handleMenuAction(item.dataset.action);
+                await handleMenuAction(item);
             });
         });
         document.addEventListener("click", (event) => {
@@ -533,8 +1353,62 @@
             }
         });
         document.addEventListener("keydown", (event) => {
+            const isTyping = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
+
             if (event.key === "Escape") {
+                const wasMenuOpen = menuPanel.classList.contains("open");
                 setMenuOpen(false);
+
+                if (wasMenuOpen) {
+                    return;
+                }
+
+                if (currentMode === "editing-published") {
+                    event.preventDefault();
+                    window.history.replaceState({}, "", window.location.pathname);
+                    checkUrl();
+                    return;
+                }
+
+                if (goToSheetIndex()) {
+                    event.preventDefault();
+                }
+                return;
+            }
+
+            if (!isTyping && event.key === "ArrowLeft" && !event.metaKey && !event.ctrlKey && !event.altKey) {
+                if (currentMode === "sheet-page" && goToSheetIndex()) {
+                    event.preventDefault();
+                }
+                return;
+            }
+
+            if (!isTyping && event.key === "/" && !event.metaKey && !event.ctrlKey && !event.altKey) {
+                event.preventDefault();
+                setMenuOpen(true);
+                focusMenuItem(1);
+                return;
+            }
+
+            if (!isTyping && !menuPanel.classList.contains("open") && event.key.toLowerCase() === "n" && !event.metaKey && !event.ctrlKey && !event.altKey) {
+                event.preventDefault();
+                createNewPage();
+                return;
+            }
+
+            if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                if (currentMode === "new" || currentMode === "editing-published") {
+                    event.preventDefault();
+                    publishCurrentMarkdown();
+                }
+                return;
+            }
+
+            if (!event.metaKey && !event.ctrlKey && !event.altKey && event.key.toLowerCase() === "e") {
+                if (!isTyping && currentMode === "published") {
+                    event.preventDefault();
+                    startEditingPublishedPage();
+                }
             }
         });
         window.onload = checkUrl;

@@ -1,0 +1,8 @@
+.git/
+.wrangler/
+node_modules/
+.DS_Store
+.assetsignore
+.gitignore
+wrangler.toml
+worker.js
