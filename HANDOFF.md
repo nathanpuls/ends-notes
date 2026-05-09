@@ -19,7 +19,9 @@ The design goal is intentionally quiet: native system fonts, generous spacing, l
 
 | File | Purpose |
 | --- | --- |
-| `index.html` | The entire browser app: layout, CSS, Markdown rendering, routing state, menu actions, editor/preview behavior. |
+| `index.html` | Browser shell markup and external library/style/script references. |
+| `styles.css` | Layout, typography, responsive rules, theme variables, menu/buttons, tables, and rendered Markdown styling. |
+| `app.js` | Markdown rendering, routing state, menu actions, editor/preview behavior, publishing, color themes, and Sheet converter UI. |
 | `worker.js` | Cloudflare Worker API and route handling. Stores published Markdown in KV and fetches public Google Sheets. |
 | `wrangler.toml` | Cloudflare Worker config for `ends.at/*`, assets binding, and KV binding. |
 | `home.md` | Markdown content for the home page at `/`. |
@@ -182,7 +184,7 @@ Preflight:
 
 ```bash
 node --check worker.js
-node -e "const fs=require('fs'); const html=fs.readFileSync('index.html','utf8'); const script=html.match(/<script>([\\s\\S]*)<\\/script>/)[1]; new Function(script); console.log('inline script syntax ok');"
+node --check app.js
 ```
 
 Deploy:
@@ -223,7 +225,6 @@ Note: there are local changes after that deploy, including the latest mobile sin
 - Consider whether mobile should auto-copy the URL after blur publish. Currently it does not.
 - Consider adding Mermaid rendering if Sheet examples include Mermaid blocks. Current renderer treats Mermaid as a code block.
 - Consider moving assets into a dedicated `public/` folder later so `.assetsignore` is less critical.
-- Consider separating CSS/JS from `index.html` if the file grows much more.
 - Consider adding tests for the CSV parser and Sheet row/slug behavior.
 
 ## Design principles to preserve
