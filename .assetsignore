@@ -7,3 +7,6 @@ node_modules/
 .gitignore
 wrangler.toml
 worker.js
+cathan-preview.html
+cathan-icon-options.html
+sheet-a1-renderer/
