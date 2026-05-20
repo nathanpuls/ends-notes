@@ -319,15 +319,15 @@ body {
     outline-offset: 2px;
 }
 
-body.editor-mode .primary-action-btn,
-body.published-page-mode .primary-action-btn {
+body.editor-mode .primary-action-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
 }
 
 body.home-mode .primary-action-btn,
-body.sheet-mode .primary-action-btn {
+body.sheet-mode .primary-action-btn,
+body.published-page-mode .primary-action-btn {
     display: none;
 }
 
@@ -366,6 +366,7 @@ body.sheet-mode .primary-action-btn {
 
 .primary-action-btn:disabled + .action-tooltip,
 body.sheet-mode .action-tooltip,
+body.published-page-mode .action-tooltip,
 body:not(.editor-mode):not(.published-page-mode) .action-tooltip {
     display: none;
 }
@@ -383,7 +384,7 @@ body:not(.editor-mode):not(.published-page-mode) .action-tooltip {
     background: transparent;
     color: #6b7280;
     cursor: pointer;
-    display: inline-flex;
+    display: none;
     align-items: center;
     justify-content: center;
     opacity: 0;
@@ -616,6 +617,10 @@ body.publish-mode .app-shell {
     grid-template-columns: 1fr;
 }
 
+body.publish-mode .preview-content {
+    padding-top: 88px;
+}
+
 @media (max-width: 900px) {
     .preview-content .sheet-back-link {
         top: max(16px, env(safe-area-inset-top));
@@ -673,6 +678,10 @@ body.publish-mode .app-shell {
         padding-top: 20px;
         padding-right: 20px;
         padding-bottom: 104px;
+    }
+
+    body.publish-mode .preview-content {
+        padding-top: 72px;
     }
 
     .menu-wrap {
