@@ -429,9 +429,9 @@ function renderPrimaryActionIcon(overrideMode = null) {
     }
 
     if (actionMode === "edit") {
-        primaryActionButton.setAttribute("aria-label", "Duplicate");
+        primaryActionButton.setAttribute("aria-label", "Edit / duplicate");
         if (primaryActionTooltip) {
-            primaryActionTooltip.textContent = "Duplicate";
+            primaryActionTooltip.textContent = "Edit / duplicate";
         }
         primaryActionButton.innerHTML = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
