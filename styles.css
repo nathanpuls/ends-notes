@@ -287,6 +287,32 @@ body {
     color: #111827;
 }
 
+.album-view h1 {
+    text-transform: lowercase;
+}
+
+.album-list {
+    display: grid;
+    gap: 28px;
+}
+
+.album-item {
+    margin: 0;
+}
+
+.album-item img {
+    width: 100%;
+    margin: 0;
+    border-radius: 8px;
+}
+
+.album-item figcaption {
+    margin-top: 8px;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.35;
+}
+
 .primary-action-btn {
     position: fixed;
     bottom: 16px;
@@ -327,6 +353,7 @@ body.editor-mode .primary-action-btn {
 
 body.home-mode .primary-action-btn,
 body.sheet-mode .primary-action-btn,
+body.album-mode .primary-action-btn,
 body.published-page-mode .primary-action-btn {
     display: none;
 }
@@ -366,6 +393,7 @@ body.published-page-mode .primary-action-btn {
 
 .primary-action-btn:disabled + .action-tooltip,
 body.sheet-mode .action-tooltip,
+body.album-mode .action-tooltip,
 body.published-page-mode .action-tooltip,
 body:not(.editor-mode):not(.published-page-mode) .action-tooltip {
     display: none;

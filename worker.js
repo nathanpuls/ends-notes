@@ -291,6 +291,67 @@ function sheetPageMarkdown(sheetId, markdown) {
   return `<a class="sheet-back-link" href="/s/${sheetId}" aria-label="Back to sheet index" title="Back">←</a>\n\n${markdown}`;
 }
 
+const IMAGE_EXTENSIONS = new Set([".gif", ".jpeg", ".jpg", ".png", ".webp"]);
+const PUBLIC_MEDIA_BASE_URL = "https://media.nathanpuls.com/";
+
+function isImageKey(key) {
+  const normalized = key.toLowerCase();
+  return Array.from(IMAGE_EXTENSIONS).some((extension) => normalized.endsWith(extension));
+}
+
+function publicMediaUrl(key) {
+  return new URL(key.split("/").map(encodeURIComponent).join("/"), PUBLIC_MEDIA_BASE_URL).toString();
+}
+
+function imageTitleFromKey(key, prefix) {
+  const fileName = key.slice(prefix.length).replace(/\.[^.]+$/, "");
+
+  return fileName
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function sortAlbumImages(a, b) {
+  const uploadedA = a.uploaded ? Date.parse(a.uploaded) : 0;
+  const uploadedB = b.uploaded ? Date.parse(b.uploaded) : 0;
+
+  if (uploadedA !== uploadedB) {
+    return uploadedA - uploadedB;
+  }
+
+  return a.key.localeCompare(b.key, undefined, { numeric: true, sensitivity: "base" });
+}
+
+async function listAlbumImages(env, slug) {
+  if (!env.MEDIA) {
+    throw new Error("Media bucket is not configured");
+  }
+
+  const prefix = `${slug}/`;
+  const images = [];
+  let cursor;
+
+  do {
+    const page = await env.MEDIA.list({ prefix, cursor });
+    cursor = page.truncated ? page.cursor : undefined;
+
+    page.objects
+      .filter((object) => isImageKey(object.key))
+      .forEach((object) => {
+        images.push({
+          key: object.key,
+          title: imageTitleFromKey(object.key, prefix),
+          url: publicMediaUrl(object.key),
+          uploaded: object.uploaded ? object.uploaded.toISOString() : null,
+          size: object.size || null,
+        });
+      });
+  } while (cursor);
+
+  return images.sort(sortAlbumImages);
+}
+
 async function handleSheetApi(url) {
   const match = url.pathname.match(/^\/api\/sheet\/([A-Za-z0-9_-]+)(?:\/([^/]+))?$/);
 
@@ -381,6 +442,20 @@ async function storeDocument(env, markdown) {
 async function handleApi(request, env) {
   const url = new URL(request.url);
 
+  if (request.method === "GET" && url.pathname === "/api/albums/cathan") {
+    try {
+      const images = await listAlbumImages(env, "cathan");
+
+      return json({
+        slug: "cathan",
+        title: "cathan",
+        images,
+      });
+    } catch (error) {
+      return json({ error: error.message || "Could not load album" }, { status: 500 });
+    }
+  }
+
   if (request.method === "GET" && url.pathname.startsWith("/api/sheet/")) {
     return handleSheetApi(url);
   }
@@ -456,7 +531,7 @@ export default {
       });
     }
 
-    if (url.pathname.startsWith("/s/") || url.pathname === "/new" || url.pathname === "/sheet" || url.pathname === "/about" || url.pathname === "/example") {
+    if (url.pathname.startsWith("/s/") || url.pathname === "/new" || url.pathname === "/sheet" || url.pathname === "/about" || url.pathname === "/example" || url.pathname === "/cathan") {
       const assetUrl = new URL("/", url.origin);
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }

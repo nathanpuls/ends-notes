@@ -195,6 +195,61 @@ function renderSheetConverter() {
     updateResult();
 }
 
+function appendTextElement(parent, tagName, text, className = "") {
+    const element = document.createElement(tagName);
+    element.textContent = text;
+
+    if (className) {
+        element.className = className;
+    }
+
+    parent.appendChild(element);
+    return element;
+}
+
+function renderAlbum(data) {
+    currentMode = "album";
+    input.value = "";
+    document.body.classList.add("publish-mode");
+    preview.innerHTML = "";
+
+    const album = document.createElement("section");
+    album.className = "album-view";
+
+    appendTextElement(album, "h1", data.title || "cathan");
+
+    if (!data.images?.length) {
+        appendTextElement(album, "p", "No comics have been added yet.", "preview-empty");
+        preview.appendChild(album);
+        return;
+    }
+
+    const list = document.createElement("div");
+    list.className = "album-list";
+
+    data.images.forEach((item, index) => {
+        const figure = document.createElement("figure");
+        figure.className = "album-item";
+
+        const image = document.createElement("img");
+        image.src = item.url;
+        image.alt = item.title || `Comic ${index + 1}`;
+        image.loading = index < 2 ? "eager" : "lazy";
+        image.decoding = "async";
+
+        figure.appendChild(image);
+
+        if (item.title) {
+            appendTextElement(figure, "figcaption", item.title);
+        }
+
+        list.appendChild(figure);
+    });
+
+    album.appendChild(list);
+    preview.appendChild(album);
+}
+
 function showEditableMarkdown(markdown, mode) {
     currentMode = mode;
     input.value = markdown || "";
@@ -389,11 +444,12 @@ function syncMenuState() {
 
     document.body.classList.toggle("home-mode", currentMode === "home");
     document.body.classList.toggle("sheet-mode", currentMode === "sheet" || currentMode === "sheet-page" || currentMode === "sheet-converter" || currentMode === "about");
+    document.body.classList.toggle("album-mode", currentMode === "album");
     document.body.classList.toggle("editor-mode", currentMode === "new" || currentMode === "editing-published");
     document.body.classList.toggle("published-page-mode", currentMode === "published");
 
     renderPrimaryActionIcon();
-    primaryActionButton.disabled = publishInProgress || currentMode === "home" || currentMode === "sheet" || currentMode === "sheet-page" || currentMode === "sheet-converter" || currentMode === "about";
+    primaryActionButton.disabled = publishInProgress || currentMode === "home" || currentMode === "sheet" || currentMode === "sheet-page" || currentMode === "sheet-converter" || currentMode === "about" || currentMode === "album";
     if (duplicateMenuItem) {
         duplicateMenuItem.disabled = currentMode !== "published";
     }
@@ -590,6 +646,21 @@ async function checkUrl() {
             console.error(error);
             preview.innerHTML = "<p class='preview-empty'>The Google Sheet converter could not be loaded.</p>";
             currentMode = "sheet-converter";
+            document.body.classList.add("publish-mode");
+        }
+    } else if (window.location.pathname === "/cathan") {
+        try {
+            const response = await fetch("/api/albums/cathan");
+
+            if (!response.ok) {
+                throw new Error("Album not found");
+            }
+
+            renderAlbum(await response.json());
+        } catch (error) {
+            console.error(error);
+            preview.innerHTML = "<p class='preview-empty'>The Cathan album could not be loaded.</p>";
+            currentMode = "album";
             document.body.classList.add("publish-mode");
         }
     } else if (window.location.pathname === "/about") {

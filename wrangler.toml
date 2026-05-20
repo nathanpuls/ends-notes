@@ -11,3 +11,7 @@ run_worker_first = true
 
 [[kv_namespaces]]
 binding = "ENDS_NOTES"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "media"
