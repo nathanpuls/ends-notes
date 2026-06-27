@@ -4,6 +4,11 @@ compatibility_date = "2026-05-06"
 workers_dev = false
 preview_urls = false
 
+routes = [
+  { pattern = "ends.at/*", zone_name = "ends.at" },
+  { pattern = "*.ends.at/*", zone_name = "ends.at" },
+]
+
 [assets]
 directory = "./"
 binding = "ASSETS"
@@ -15,3 +20,7 @@ binding = "ENDS_NOTES"
 [[r2_buckets]]
 binding = "MEDIA"
 bucket_name = "media"
+
+[[services]]
+binding = "BUILT_AT"
+service = "simple-editor"

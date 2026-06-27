@@ -8,6 +8,73 @@ function json(data, init = {}) {
   });
 }
 
+const DOMAIN = "ends.at";
+const BUILT_PUBLIC_API_PATHS = new Set([
+  "/api/domain-favicon",
+  "/api/domain-favicon-v2",
+  "/api/icon",
+  "/api/icon.ico",
+  "/api/manifest",
+]);
+
+function subdomainRedirect(url) {
+  const hostname = url.hostname.toLowerCase();
+
+  if (!hostname.endsWith(`.${DOMAIN}`)) {
+    return "";
+  }
+
+  const subdomain = hostname.slice(0, -(DOMAIN.length + 1));
+
+  if (!subdomain || subdomain === "www") {
+    return "";
+  }
+
+  const mappedPath = subdomain
+    .split(".")
+    .filter(Boolean)
+    .map((part) => encodeURIComponent(part))
+    .join("/");
+  const restPath = url.pathname === "/" ? "" : url.pathname;
+
+  return `https://${DOMAIN}/${mappedPath}${restPath}${url.search}`;
+}
+
+async function renderBuiltAtPath(request, env) {
+  if (!env.BUILT_AT) {
+    return null;
+  }
+
+  const url = new URL(request.url);
+  const renderUrl = new URL("https://built.at/api/internal/render-path");
+  renderUrl.searchParams.set("domain", DOMAIN);
+  renderUrl.searchParams.set("path", url.pathname);
+
+  const response = await env.BUILT_AT.fetch(new Request(renderUrl, {
+    method: request.method,
+    headers: {
+      accept: request.headers.get("accept") || "",
+    },
+  }));
+
+  return response.status === 204 ? null : response;
+}
+
+async function proxyBuiltAtPublicApi(request, env) {
+  if (!env.BUILT_AT) {
+    return json({ error: "Built.at binding is not configured" }, { status: 502 });
+  }
+
+  const url = new URL(request.url);
+  const builtUrl = new URL(`${url.pathname}${url.search}`, "https://built.at");
+  return env.BUILT_AT.fetch(new Request(builtUrl, {
+    method: request.method,
+    headers: {
+      accept: request.headers.get("accept") || "",
+    },
+  }));
+}
+
 function makeId(length = 8) {
   const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   const bytes = crypto.getRandomValues(new Uint8Array(length));
@@ -501,6 +568,24 @@ async function handleApi(request, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const redirectUrl = subdomainRedirect(url);
+
+    if (redirectUrl) {
+      return new Response(null, {
+        status: 302,
+        headers: {
+          location: redirectUrl,
+          "cache-control": "no-store",
+        },
+      });
+    }
+
+    if (
+      (request.method === "GET" || request.method === "HEAD") &&
+      BUILT_PUBLIC_API_PATHS.has(url.pathname)
+    ) {
+      return proxyBuiltAtPublicApi(request, env);
+    }
 
     if (url.pathname.startsWith("/api/")) {
       return handleApi(request, env);
@@ -508,6 +593,11 @@ export default {
 
     if (url.pathname === "/worker.js" || url.pathname === "/wrangler.toml") {
       return new Response("Not found", { status: 404 });
+    }
+
+    if (request.method === "GET" || request.method === "HEAD") {
+      const builtAtResponse = await renderBuiltAtPath(request, env);
+      if (builtAtResponse) return builtAtResponse;
     }
 
     const publishedId = publishedIdFromPath(url.pathname);
