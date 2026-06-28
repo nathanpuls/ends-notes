@@ -52,6 +52,7 @@ async function renderBuiltAtPath(request, env) {
 
   const response = await env.BUILT_AT.fetch(new Request(renderUrl, {
     method: request.method,
+    redirect: "manual",
     headers: {
       accept: request.headers.get("accept") || "",
     },
