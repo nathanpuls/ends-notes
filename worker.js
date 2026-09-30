@@ -622,7 +622,7 @@ export default {
       });
     }
 
-    if (url.pathname.startsWith("/s/") || url.pathname === "/new" || url.pathname === "/sheet" || url.pathname === "/about" || url.pathname === "/example" || url.pathname === "/cathan") {
+    if (url.pathname.startsWith("/s/") || url.pathname === "/new" || url.pathname === "/sheet" || url.pathname === "/about" || url.pathname === "/example" || url.pathname === "/address" || url.pathname === "/cathan") {
       const assetUrl = new URL("/", url.origin);
       return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
     }
