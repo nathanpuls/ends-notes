@@ -663,6 +663,21 @@ async function checkUrl() {
             currentMode = "album";
             document.body.classList.add("publish-mode");
         }
+    } else if (window.location.pathname === "/address") {
+        try {
+            const response = await fetch("/address.md");
+
+            if (!response.ok) {
+                throw new Error("Address page not found");
+            }
+
+            showReadOnlyMarkdown(await response.text(), "address");
+        } catch (error) {
+            console.error(error);
+            preview.innerHTML = "<p class='preview-empty'>The address page could not be loaded.</p>";
+            currentMode = "address";
+            document.body.classList.add("publish-mode");
+        }
     } else if (window.location.pathname === "/about") {
         try {
             const response = await fetch("/about.md");
